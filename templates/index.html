@@ -1,0 +1,190 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>AstroHub | Vedic Calculation Demo</title>
+<link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+<div class="universe-backdrop" aria-hidden="true"><span class="universe-meteor"></span></div>
+
+<header>
+  <div class="brand"><span class="brand-mark" aria-hidden="true">✦</span><div>AstroHub <small>VEDIC CALCULATION STUDIO</small></div></div>
+  <div class="headright">
+    <div class="langswitch" id="langSwitch">
+      <button class="lang active" data-lang="both">Both / இரண்டும்</button>
+      <button class="lang" data-lang="en">English</button>
+      <button class="lang" data-lang="ta">தமிழ்</button>
+    </div>
+  </div>
+</header>
+
+<main>
+
+<section class="hero">
+  <div class="hero-sky" aria-hidden="true">
+    <div class="hero-earth"></div>
+  </div>
+  <div class="hero-copy">
+    <p class="eyebrow"><span data-en="Vedic astrology" data-ta="வேத ஜோதிடம்"></span></p>
+    <h1><span data-en="Explore your birth chart." data-ta="உங்கள் ஜாதகத்தை அறியுங்கள்."></span></h1>
+    <p class="hero-description"><span data-en="Find your Moon Rasi, Nakshatra and Lagna, then compare the sky at your birth with today’s planetary positions."
+         data-ta="உங்கள் சந்திர ராசி, நட்சத்திரம், லக்னம் ஆகியவற்றை அறிந்து, பிறந்த நேரத்திலிருந்த கிரக நிலைகளை இன்றைய நிலைகளுடன் ஒப்பிடுங்கள்."></span></p>
+    <a class="primary hero-link" href="#astro-tools"><span data-en="Explore the tools" data-ta="கருவிகளைப் பாருங்கள்"></span></a>
+    <label class="galaxy-motion"><input id="pauseGalaxy" type="checkbox">
+      <span data-en="Pause space animations" data-ta="விண்வெளி அசைவுகளை நிறுத்து"></span>
+    </label>
+  </div>
+</section>
+
+<nav id="astro-tools" tabindex="-1" aria-label="Astrology tools">
+  <button class="tab active" data-tab="chat"><span data-en="Chart Chat" data-ta="ஜாதக உரையாடல்"></span></button>
+  <button class="tab" data-tab="chart"><span data-en="Birth Chart" data-ta="ஜாதகம்"></span></button>
+  <button class="tab" data-tab="now"><span data-en="Planets Now" data-ta="இன்றைய கிரகம்"></span></button>
+  <button class="tab" data-tab="match"><span data-en="Compatibility" data-ta="பொருத்தம்"></span></button>
+  <button class="tab" data-tab="panchang"><span data-en="Daily Timings" data-ta="நல்ல நேரம்"></span></button>
+  <button class="tab" data-tab="speech"><span data-en="Speech Studio" data-ta="பேச்சு கருவி"></span></button>
+</nav>
+
+<section id="chat" class="panel active">
+  <h2><span data-en="Birth chart chat" data-ta="ஜாதக உரையாடல்"></span></h2>
+  <div id="chatLog" class="chat-log" role="log">
+    <p class="chat-reply" data-en="Enter your birth details to start. I answer questions using your calculated chart." data-ta="தொடங்க உங்கள் பிறப்பு விவரங்களை உள்ளிடுங்கள். கணக்கிடப்பட்ட ஜாதகத்தின் அடிப்படையில் பதிலளிப்பேன்."></p>
+  </div>
+  <form id="chatBirth" class="formgrid chat-form">
+    <label><span data-en="Name" data-ta="பெயர்"></span><input name="full_name" autocomplete="name" required maxlength="100"></label>
+    <label><span data-en="Date of birth" data-ta="பிறந்த தேதி"></span><input name="date" type="date" required></label>
+    <label><span data-en="Birth time" data-ta="பிறந்த நேரம்"></span><input name="time" type="time" required></label>
+    <label><span data-en="Birth place" data-ta="பிறந்த ஊர்"></span><input name="place" list="chatPlaces" required maxlength="140"></label>
+    <datalist id="chatPlaces"><option value="Cuddalore, Tamil Nadu"></option></datalist>
+    <div id="chatLocation" class="formgrid wide" hidden>
+      <label><span data-en="Latitude" data-ta="அட்சரேகை"></span><input name="lat" type="number" min="-90" max="90" step="any" disabled></label>
+      <label><span data-en="Longitude" data-ta="தீர்க்கரேகை"></span><input name="lon" type="number" min="-180" max="180" step="any" disabled></label>
+      <label><span data-en="Birth timezone (e.g. Asia/Kolkata)" data-ta="பிறந்த இடத்தின் நேர மண்டலம் (எ.கா. Asia/Kolkata)"></span><input name="timezone" disabled></label>
+    </div>
+    <button class="primary wide" type="submit"><span data-en="Start chat" data-ta="உரையாடலைத் தொடங்கு"></span></button>
+  </form>
+  <p id="chatStatus" role="status"></p>
+  <form id="chatQuestion" class="chat-compose" hidden>
+    <details class="chat-topic-picker">
+      <summary><span data-en="What would you like to ask about?" data-ta="எதைப் பற்றிக் கேட்க விரும்புகிறீர்கள்?"></span></summary>
+      <div id="chatTopics"></div>
+    </details>
+    <label><span data-en="Ask a chart question" data-ta="ஜாதகக் கேள்வியைக் கேளுங்கள்"></span><input name="question" required maxlength="300" autocomplete="off"></label>
+    <button class="primary" type="submit"><span data-en="Send" data-ta="அனுப்பு"></span></button>
+    <button class="ghost" id="chatEdit" type="button"><span data-en="Edit birth details" data-ta="பிறப்பு விவரங்களை மாற்று"></span></button>
+  </form>
+</section>
+
+<!-- ============================================================ BIRTH CHART -->
+<section id="chart" class="panel">
+  <h2><span data-en="Birth details" data-ta="பிறப்பு விவரங்கள்"></span></h2>
+  <form id="chartForm" class="formgrid">
+    <label><span data-en="Full name (optional)" data-ta="முழு பெயர் (விருப்பம்)"></span>
+      <span class="inwrap"><input id="name" placeholder="Your name"><button type="button" class="mic" data-mic="name" title="Speak">🎙</button></span></label>
+    <label><span data-en="Date of birth" data-ta="பிறந்த தேதி"></span><input id="date" type="date" required></label>
+    <label><span data-en="Birth time" data-ta="பிறந்த நேரம்"></span><input id="time" type="time" step="60" value="11:00" required></label>
+    <label><span data-en="Birth place" data-ta="பிறந்த ஊர்"></span>
+      <span class="inwrap"><input id="place" value="Cuddalore, Tamil Nadu" required><button type="button" class="mic" data-mic="place" title="Speak">🎙</button></span></label>
+    <label><span data-en="Latitude" data-ta="அட்சரேகை"></span><input id="lat" type="number" step="any" value="11.7480" required></label>
+    <label><span data-en="Longitude" data-ta="தீர்க்கரேகை"></span><input id="lon" type="number" step="any" value="79.7714" required></label>
+    <input type="hidden" id="timezone" value="Asia/Kolkata">
+    <button class="primary wide" type="submit"><span data-en="Calculate birth chart →" data-ta="ஜாதகம் கணக்கிடு →"></span></button>
+  </form>
+  <div id="chartResult"></div>
+</section>
+
+<!-- ============================================================= PLANETS NOW -->
+<section id="now" class="panel">
+  <h2><span data-en="Where every planet is standing right now" data-ta="இந்த நிமிடம் கிரகங்கள் எங்கே உள்ளன"></span></h2>
+  <p class="muted"><span data-en="Live sidereal transit positions for your location, with the rising sign at this moment."
+    data-ta="உங்கள் இடத்திற்கான தற்போதைய நிரயன கோச்சார நிலைகள் மற்றும் இந்த நிமிட உதய லக்னம்."></span></p>
+  <form id="nowForm" class="formgrid">
+    <label><span data-en="Latitude" data-ta="அட்சரேகை"></span><input id="nowLat" type="number" step="any" value="11.7480"></label>
+    <label><span data-en="Longitude" data-ta="தீர்க்கரேகை"></span><input id="nowLon" type="number" step="any" value="79.7714"></label>
+    <label><span data-en="Timezone" data-ta="நேர மண்டலம்"></span><input id="nowTz" value="Asia/Kolkata"></label>
+    <label class="chkline"><input type="checkbox" id="autoRefresh"> <span data-en="Auto refresh every 60s" data-ta="60 வினாடிக்கு ஒரு முறை புதுப்பி"></span></label>
+    <button class="primary wide" type="submit"><span data-en="Show planets now →" data-ta="தற்போதைய கிரக நிலை →"></span></button>
+  </form>
+  <div id="nowResult"></div>
+</section>
+
+<!-- =========================================================== COMPATIBILITY -->
+<section id="match" class="panel">
+  <h2><span data-en="Two-person comparison" data-ta="இரு நபர் ஒப்பீடு"></span></h2>
+  <p class="muted"><span data-en="Enter both people's birth details. This demo compares calculated Moon Rasi and Nakshatra; it does not issue a marriage verdict."
+    data-ta="இரு நபரின் பிறப்பு விவரங்களை உள்ளிடுங்கள். இது சந்திர ராசி மற்றும் நட்சத்திரத்தை மட்டும் ஒப்பிடுகிறது; திருமண முடிவு கூறுவதில்லை."></span></p>
+  <div class="two">
+    <div><h3><span data-en="Person 1" data-ta="முதலாம் நபர்"></span></h3><div id="p1" class="formgrid"></div></div>
+    <div><h3><span data-en="Person 2" data-ta="இரண்டாம் நபர்"></span></h3><div id="p2" class="formgrid"></div></div>
+  </div>
+  <button id="matchBtn" class="primary"><span data-en="Compare charts →" data-ta="ஜாதகம் ஒப்பிடு →"></span></button>
+  <div id="matchResult"></div>
+</section>
+
+<!-- ========================================================== DAILY TIMINGS -->
+<section id="panchang" class="panel">
+  <h2><span data-en="Daily auspicious-time reference" data-ta="தினசரி நல்ல நேரம்"></span></h2>
+  <form id="panForm" class="formgrid">
+    <label><span data-en="Date" data-ta="தேதி"></span><input id="panDate" type="date" required></label>
+    <label><span data-en="Latitude" data-ta="அட்சரேகை"></span><input id="panLat" type="number" step="any" value="11.7480"></label>
+    <label><span data-en="Longitude" data-ta="தீர்க்கரேகை"></span><input id="panLon" type="number" step="any" value="79.7714"></label>
+    <label><span data-en="Timezone" data-ta="நேர மண்டலம்"></span><input id="panTz" value="Asia/Kolkata"></label>
+    <button class="primary wide"><span data-en="Calculate daily timings →" data-ta="தினசரி நேரம் கணக்கிடு →"></span></button>
+  </form>
+  <div id="panResult"></div>
+</section>
+
+<!-- ========================================================== SPEECH STUDIO -->
+<section id="speech" class="panel">
+  <h2><span data-en="Speech studio — type and listen, or speak and type" data-ta="பேச்சு கருவி — எழுதி கேளுங்கள், பேசி எழுதுங்கள்"></span></h2>
+  <p class="muted"><span data-en="Type and press Speak to listen, or use the microphone to dictate. Available voices and dictation languages depend on your browser."
+    data-ta="உரையை எழுதி ‘பேசு’ பொத்தானை அழுத்திக் கேளுங்கள். பேசி எழுத மைக் பொத்தானைப் பயன்படுத்துங்கள். கிடைக்கும் குரல்களும் பேச்சறிதல் மொழிகளும் உங்கள் உலாவியைப் பொறுத்தவை."></span></p>
+
+  <div class="voiceinfo" id="voiceInfo" role="status"></div>
+  <div class="speechrow btns">
+    <button type="button" class="ghost" id="testTamilBtn">🧪 <span data-en="Test Tamil voice" data-ta="தமிழ் குரலை சோதி"></span></button>
+    <button type="button" class="ghost" id="refreshVoicesBtn">↻ <span data-en="Refresh voice list" data-ta="குரல் பட்டியலை புதுப்பி"></span></button>
+  </div>
+  <label class="chkline romanopt"><input type="checkbox" id="romanFallback">
+    <span data-en="Use an English voice when no Tamil voice is available (approximate pronunciation)"
+          data-ta="தமிழ் குரல் கிடைக்காதபோது ஆங்கிலக் குரலைப் பயன்படுத்தவும் (தோராயமான உச்சரிப்பு)"></span></label>
+
+  <details id="voiceListBox"><summary><span data-en="Voices detected on this device" data-ta="இந்த சாதனத்தில் உள்ள குரல்கள்"></span></summary>
+    <div id="voiceList" class="voicelist"></div></details>
+
+  <div class="speechbox">
+    <textarea id="speechText" rows="6" placeholder="Type here and press Speak…  /  இங்கே எழுதி 'பேசு' அழுத்துங்கள்…"></textarea>
+    <div class="speechrow">
+      <label class="inline"><span data-en="Voice language" data-ta="குரல் மொழி"></span>
+        <select id="voiceLang">
+          <option value="ta-IN">தமிழ் (ta-IN)</option>
+          <option value="en-IN" selected>English (India)</option>
+          <option value="en-US">English (US)</option>
+          <option value="en-GB">English (UK)</option>
+          <option value="hi-IN">हिन्दी (hi-IN)</option>
+        </select></label>
+      <label class="inline"><span data-en="Voice" data-ta="குரல்"></span><select id="voicePick"></select></label>
+      <label class="inline"><span data-en="Speed" data-ta="வேகம்"></span><input id="rate" type="range" min="0.5" max="1.6" step="0.1" value="0.95"></label>
+      <label class="inline"><span data-en="Pitch" data-ta="சுருதி"></span><input id="pitch" type="range" min="0.5" max="1.6" step="0.1" value="1"></label>
+    </div>
+    <div class="speechrow btns">
+      <button type="button" class="primary" id="speakBtn">🔊 <span data-en="Speak" data-ta="பேசு"></span></button>
+      <button type="button" class="ghost" id="pauseBtn">⏸ <span data-en="Pause" data-ta="இடைநிறுத்து"></span></button>
+      <button type="button" class="ghost" id="resumeBtn">▶ <span data-en="Resume" data-ta="தொடர்"></span></button>
+      <button type="button" class="ghost" id="stopBtn">⏹ <span data-en="Stop" data-ta="நிறுத்து"></span></button>
+      <button type="button" class="ghost" id="dictateBtn">🎙 <span data-en="Start dictation" data-ta="பேசி எழுது"></span></button>
+      <button type="button" class="ghost" id="clearBtn">✕ <span data-en="Clear" data-ta="அழி"></span></button>
+    </div>
+    <p class="status" id="speechStatus"></p>
+  </div>
+</section>
+
+<footer>
+  <span data-en="AstroHub demo · Lahiri sidereal zodiac · Swiss Ephemeris · Verify calculations and tradition-specific rules before production use."
+        data-ta="ஆஸ்ட்ரோஹப் மாதிரி · லாஹிரி நிரயன முறை · ஸ்விஸ் எஃபெமெரிஸ் · பயன்படுத்தும் முன் கணக்குகளையும் சம்பிரதாய விதிகளையும் சரிபார்க்கவும்."></span>
+</footer>
+
+</main>
+<script src="/static/app.js"></script>
+</body></html>
