@@ -1,4 +1,4 @@
-# AstroHub Vedic Calculation Demo
+# Astrologer Vedic Calculation Demo
 
 A responsive, **bilingual (English + Tamil)** Flask web app that demonstrates:
 
@@ -55,7 +55,7 @@ python app.py
 
 Chart Chat sends each question to Gemma 3 4B through Ollama to identify its
 topic and whether it asks about timing. An animated reply bubble appears while
-the model works. AstroHub supplies the chart facts and dates. The model receives
+the model works. Astrologer supplies the chart facts and dates. The model receives
 the question text through the local Ollama service.
 
 Install [Ollama for Windows](https://ollama.com/download/windows), open it, then
@@ -65,7 +65,7 @@ download the model from PowerShell:
 ollama pull gemma3:4b
 ```
 
-Keep Ollama running while using AstroHub. Chart Chat uses its built-in rules
+Keep Ollama running while using Astrologer. Chart Chat uses its built-in rules
 when the model is unavailable.
 
 **Language** — the switch in the top right toggles `English` / `தமிழ்` / `Both`.

@@ -1,4 +1,4 @@
-"""AstroHub Vedic Calculation Studio - bilingual (English + Tamil) Flask demo.
+"""Astrologer Vedic Calculation Studio - bilingual (English + Tamil) Flask demo.
 
 Everything is computed from Swiss Ephemeris in Lahiri sidereal mode.
 This is a demonstration tool, not a certified Panchangam product.

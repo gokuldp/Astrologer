@@ -1,4 +1,4 @@
-/* AstroHub — bilingual (English + Tamil) UI, chart grids, and browser speech.
+/* Astrologer — bilingual (English + Tamil) UI, chart grids, and browser speech.
    Nothing here talks to any server except this app's own /api endpoints. */
 
 const $ = id => document.getElementById(id);
@@ -472,6 +472,26 @@ async function post(url, data) {
   return j;
 }
 
+async function postCalculation(button, url, data) {
+  if (!button) return post(url, data);
+  button.disabled = true;
+  button.dataset.actionState = "loading";
+  button.setAttribute("aria-busy", "true");
+  try {
+    const result = await post(url, data);
+    button.dataset.actionState = "success";
+    button.removeAttribute("aria-busy");
+    if (!window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      await new Promise(resolve => setTimeout(resolve, 480));
+    }
+    return result;
+  } finally {
+    delete button.dataset.actionState;
+    button.removeAttribute("aria-busy");
+    button.disabled = false;
+  }
+}
+
 const busy = () => `<p class="busy">${esc(tx("Calculating…", "கணக்கிடுகிறது…"))}</p>`;
 const fail = m => `<p class="error">${esc(m)}</p>`;
 
@@ -916,8 +936,8 @@ const chatTopics = [
     "The chart cannot establish when you can buy or build a home, inherit property, or resolve a dispute.",
     "வீடு வாங்கும் அல்லது கட்டும் காலம், பரம்பரைச் சொத்து கிடைக்குமா, சொத்துத் தகராறு தீருமா என்பவற்றை ஜாதகம் உறுதிப்படுத்தாது."],
   ["General horoscope", "பொதுவான ஜாதகம்", /general horoscope|good time|luck|yoga|this year|next \d+ years|நல்ல கால|அதிர்ஷ்ட|யோக|இந்த வருட|பொதுவான ஜாதக|राशिफल/, 1,
-    "AstroHub can show calculated placements and dasha dates. It cannot establish future events or verify specific yogas.",
-    "கணக்கிடப்பட்ட கிரக நிலைகளையும் திசைத் தேதிகளையும் ஆஸ்ட்ரோஹப் காட்டும். எதிர்கால நிகழ்வுகளையோ குறிப்பிட்ட யோகங்களையோ உறுதிப்படுத்த முடியாது."],
+    "Astrologer can show calculated placements and dasha dates. It cannot establish future events or verify specific yogas.",
+    "கணக்கிடப்பட்ட கிரக நிலைகளையும் திசைத் தேதிகளையும் அஸ்ட்ராலஜர் காட்டும். எதிர்கால நிகழ்வுகளையோ குறிப்பிட்ட யோகங்களையோ உறுதிப்படுத்த முடியாது."],
 ];
 
 for (const [en, ta] of chatTopics) {
@@ -998,8 +1018,8 @@ function chartAnswer(question, chart, modelTiming = false) {
       replies.push(tx("The seventh house shows relationship-related placements. These do not tell whether your marriage will be love or arranged.",
         "ஏழாம் வீடு திருமணம் தொடர்பான கிரக நிலைகளைக் காட்டுகிறது. அவை காதல் திருமணமா அல்லது ஏற்பாடு செய்த திருமணமா என்பதைத் தீர்மானிக்காது."));
     } else if (en === "Marriage" && asksWhen) {
-      replies.push(tx("AstroHub can show your chart periods, but it cannot calculate your wedding date.",
-        "ஆஸ்ட்ரோஹப் உங்கள் ஜாதகத் திசைக் காலங்களைக் காட்டும். திருமணத் தேதியைக் கணக்கிட முடியாது."));
+      replies.push(tx("Astrologer can show your chart periods, but it cannot calculate your wedding date.",
+        "அஸ்ட்ராலஜர் உங்கள் ஜாதகத் திசைக் காலங்களைக் காட்டும். திருமணத் தேதியைக் கணக்கிட முடியாது."));
     } else {
       replies.push(tx(limitEn, limitTa));
     }
@@ -1070,10 +1090,9 @@ chatBirth.onsubmit = async e => {
     setChatStatus(() => tx("Enter a name and birth place.", "பெயரையும் பிறந்த இடத்தையும் உள்ளிடுங்கள்."));
     return;
   }
-  submit.disabled = true;
   setChatStatus(() => tx("Calculating your chart…", "உங்கள் ஜாதகம் கணக்கிடப்படுகிறது…"));
   try {
-    const response = await post("/api/chart", { ...data, ...location });
+    const response = await postCalculation(submit, "/api/chart", { ...data, ...location });
     chatChart = response.result;
     resetChatLog();
     chatMessage(() => tx(`${data.full_name}, your chart is ready. Try asking “What is my Nakshatra?”`,
@@ -1085,8 +1104,6 @@ chatBirth.onsubmit = async e => {
   } catch (err) {
     setChatStatus(() => tx(`Could not calculate your chart. ${err.message}`,
       "ஜாதகத்தைக் கணக்கிட முடியவில்லை. பிறப்பு விவரங்களைச் சரிபார்க்கவும்."));
-  } finally {
-    submit.disabled = false;
   }
 };
 
@@ -1147,9 +1164,11 @@ function renderAll() {
 
 $("chartForm").onsubmit = async e => {
   e.preventDefault();
+  const button = $("chartForm").querySelector("button.primary");
+  if (button.disabled) return;
   $("chartResult").innerHTML = busy();
   try {
-    const j = await post("/api/chart", {
+    const j = await postCalculation(button, "/api/chart", {
       full_name: $("name").value, date: $("date").value, time: $("time").value,
       place: $("place").value, lat: $("lat").value, lon: $("lon").value,
       timezone: $("timezone").value
@@ -1161,26 +1180,32 @@ $("chartForm").onsubmit = async e => {
 };
 
 let nowTimer = null;
-async function loadNow() {
+async function loadNow(button) {
   $("nowResult").innerHTML = state.now ? $("nowResult").innerHTML : busy();
   try {
-    const j = await post("/api/now", {
+    const j = await postCalculation(button, "/api/now", {
       lat: $("nowLat").value, lon: $("nowLon").value, timezone: $("nowTz").value
     });
     state.now = j.result;
     $("nowResult").innerHTML = nowHtml(j.result);
   } catch (err) { $("nowResult").innerHTML = fail(err.message); }
 }
-$("nowForm").onsubmit = e => { e.preventDefault(); loadNow(); };
+$("nowForm").onsubmit = e => {
+  e.preventDefault();
+  const button = $("nowForm").querySelector("button.primary");
+  if (!button.disabled) loadNow(button);
+};
 $("autoRefresh").onchange = e => {
   clearInterval(nowTimer);
   if (e.target.checked) { loadNow(); nowTimer = setInterval(loadNow, 60000); }
 };
 
 $("matchBtn").onclick = async () => {
+  const button = $("matchBtn");
+  if (button.disabled) return;
   $("matchResult").innerHTML = busy();
   try {
-    const j = await post("/api/match", { person1: readPerson("a"), person2: readPerson("b") });
+    const j = await postCalculation(button, "/api/match", { person1: readPerson("a"), person2: readPerson("b") });
     state.match = j;
     $("matchResult").innerHTML = matchHtml(j);
   } catch (err) { $("matchResult").innerHTML = fail(err.message); }
@@ -1188,9 +1213,11 @@ $("matchBtn").onclick = async () => {
 
 $("panForm").onsubmit = async e => {
   e.preventDefault();
+  const button = $("panForm").querySelector("button.primary");
+  if (button.disabled) return;
   $("panResult").innerHTML = busy();
   try {
-    const j = await post("/api/panchang", {
+    const j = await postCalculation(button, "/api/panchang", {
       date: $("panDate").value, lat: $("panLat").value,
       lon: $("panLon").value, timezone: $("panTz").value
     });
